@@ -26,10 +26,12 @@ Trenly — сервис, который упрощает работу персо
 
 | Часть | Технологии |
 |---|---|
-| Бэкенд (API, Telegram-бот) | Выбирается — [реестр ADR](docs/architecture/adr/README.md) |
-| Фронтенд (кабинет тренера, админка) | Выбирается — [реестр ADR](docs/architecture/adr/README.md) |
+| Бэкенд (API, Telegram-бот) | Python, Django, Django REST Framework, drf-spectacular ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
+| База данных | PostgreSQL ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
+| Админка | Django Admin ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
+| Кабинет тренера | Vue 3, TypeScript, Vite, PrimeVue, Pinia ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
 | Хранение фото | Yandex Object Storage ([ADR 0002](docs/architecture/adr/0002-photo-storage.md)) |
-| Распознавание КБЖУ | Внешние AI-модели по API (провайдер выбирается) |
+| Распознавание КБЖУ | OpenRouter, модель Gemini 3.8 Flash ([ADR 0004](docs/architecture/adr/0004-macros-recognition-openrouter.md)) |
 | Канал клиента | Telegram Bot API |
 
 ## Структура репозитория
@@ -40,8 +42,8 @@ Trenly — сервис, который упрощает работу персо
 trenly-ai/
 ├── docs/          документация
 ├── openspec/      функциональные требования и изменения в работе
-├── backend/       API, Telegram-бот, интеграции (появится в E1)
-├── frontend/      кабинет тренера и админка (появится в E1)
+├── backend/       Django: API, Telegram-бот, интеграции, админка (появится в E1)
+├── frontend/      Vue: кабинет тренера (появится в E1)
 ├── templates/     шаблоны документов
 └── AGENTS.md      правила для ИИ-агентов
 ```

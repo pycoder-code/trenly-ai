@@ -4,7 +4,7 @@
 
 | API | Тип | Потребители | Спецификация | Версия |
 |---|---|---|---|---|
-| API кабинета тренера | REST (OpenAPI) | frontend | `backend/...` | |
+| API кабинета тренера | REST (DRF, OpenAPI из drf-spectacular) | frontend | `backend/...` | |
 
 ## Правила
 
