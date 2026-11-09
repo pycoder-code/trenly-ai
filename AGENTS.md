@@ -1,6 +1,6 @@
 # Инструкции для ИИ-агентов
 
-Монорепозиторий Trenly: `docs/` — документация, `openspec/` — спецификации, `backend/` — API и Telegram-бот, `frontend/` — кабинет тренера.
+Монорепозиторий Trenly: `docs/` — документация, `openspec/` — спецификации, `backend/` — API и Telegram-бот, `frontend/` — кабинет тренера и админка.
 
 - Документация пишется на русском языке.
 - Перед работой со спецификациями прочитай [`docs/spec-driven-process.md`](docs/spec-driven-process.md) и [`docs/glossary.md`](docs/glossary.md).
