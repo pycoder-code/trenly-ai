@@ -1,0 +1,7 @@
+schema: spec-driven
+created: 2026-11-10
+goal: Каркас Django-приложения в backend/, чтобы локально поднимались API, админка и PostgreSQL
+affected_areas:
+  - backend
+  - docs
+skip_specs: true

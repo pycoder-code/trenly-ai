@@ -1,6 +1,6 @@
 # Инструкции для ИИ-агентов
 
-Монорепозиторий Trenly: `docs/` — документация, `openspec/` — спецификации, `backend/` — Django (API, Telegram-бот, админка на Django Admin), `frontend/` — Vue 3 (кабинет тренера).
+Монорепозиторий Trenly: `docs/` — документация, `openspec/` — спецификации, `backend/` — Django (API, админка на Django Admin), `frontend/` — Vue 3 (кабинет тренера), `tg_bot/` — aiogram 3 (чат клиента, [ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)).
 
 - Документация пишется на русском языке.
 - Перед работой со спецификациями прочитай [`docs/spec-driven-process.md`](docs/spec-driven-process.md) и [`docs/glossary.md`](docs/glossary.md).

@@ -26,7 +26,8 @@ Trenly — сервис, который упрощает работу персо
 
 | Часть | Технологии |
 |---|---|
-| Бэкенд (API, Telegram-бот) | Python, Django, Django REST Framework, drf-spectacular ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
+| Бэкенд (API, админка, интеграции) | Python, Django, Django REST Framework, drf-spectacular ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
+| Telegram-бот | aiogram 3, отдельное приложение, связь с API по HTTP ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)) |
 | База данных | PostgreSQL ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
 | Админка | Django Admin ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
 | Кабинет тренера | Vue 3, TypeScript, Vite, PrimeVue, Pinia ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
@@ -42,11 +43,29 @@ Trenly — сервис, который упрощает работу персо
 trenly-ai/
 ├── docs/          документация
 ├── openspec/      функциональные требования и изменения в работе
-├── backend/       Django: API, Telegram-бот, интеграции, админка (появится в E1)
+├── backend/       Django: API, интеграции, админка
 ├── frontend/      Vue: кабинет тренера (появится в E1)
+├── tg_bot/        aiogram 3: чат клиента (появится в E3, ADR 0006)
 ├── templates/     шаблоны документов
 └── AGENTS.md      правила для ИИ-агентов
 ```
+
+## Локальный запуск бэкенда
+
+Нужны [uv](https://docs.astral.sh/uv/) и Docker Compose. Из корня репозитория:
+
+```bash
+docker-compose up -d
+cp backend/.env.example backend/.env
+cd backend
+uv sync
+uv run python manage.py migrate
+uv run python manage.py runserver
+```
+
+Если установлен плагин Compose V2, базу поднимает `docker compose up -d`.
+
+Приложение слушает http://127.0.0.1:8000. `GET /api/health/` возвращает `{"status": "ok"}`, `GET /api/schema/` — документ OpenAPI. Админка: http://127.0.0.1:8000/admin/.
 
 ## Документация
 
@@ -77,5 +96,5 @@ trenly-ai/
 Изменение                         openspec/changes/<change-id>/
         │  «как реализуем: design.md, tasks.md»
         ▼
-Код                               backend/, frontend/
+Код                               backend/, frontend/, tg_bot/
 ```

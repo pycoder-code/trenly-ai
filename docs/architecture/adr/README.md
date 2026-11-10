@@ -9,9 +9,9 @@
 | [0003](0003-monorepo.md) | Монорепозиторий | E0 | Принято |
 | [0004](0004-macros-recognition-openrouter.md) | Распознавание КБЖУ через OpenRouter (Gemini 3.8 Flash) | E7 | Предложено |
 | [0005](0005-tech-stack.md) | Стек: Django + DRF, PostgreSQL, Django Admin, Vue 3 | E0 | Принято |
+| [0006](0006-telegram-bot-aiogram.md) | Telegram-бот: aiogram 3 в `tg_bot/`, связь с Django по HTTP | E0 | Предложено |
 | — | Хостинг и деплой | E0 | Предстоит |
 | — | Вход тренера в кабинет | E0 | Предстоит |
-| — | Telegram-бот: библиотека, webhook или polling | E0 | Предстоит |
 | — | Фоновые задачи (рекомендации в конце дня, напоминания) | E0 | Предстоит |
 | — | Платёжный провайдер | E10 | Предстоит |
 
