@@ -15,3 +15,10 @@ venv/
 .env
 .env.*
 !.env.example
+
+# фото тренеров на локальном диске
+backend/media/
+
+# Frontend
+node_modules/
+dist/

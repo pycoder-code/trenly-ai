@@ -12,4 +12,5 @@ class ApiScaffoldTests(TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.content.decode()
         self.assertIn('openapi:', body)
-        self.assertIn('paths: {}', body)
+        self.assertIn('/api/trainer-sessions', body)
+        self.assertIn('/api/clients', body)

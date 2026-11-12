@@ -1,0 +1,16 @@
+html,
+body,
+#app {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--tg-theme-bg-color, #e8e8e8);
+  color: var(--tg-theme-text-color, #1a1a1a);
+  font-family: system-ui, sans-serif;
+}
+
+main {
+  padding: 24px 16px;
+}

@@ -1,0 +1,5 @@
+{
+  "name": "trenly-frontend",
+  "private": true,
+  "packageManager": "pnpm@12.18.0"
+}

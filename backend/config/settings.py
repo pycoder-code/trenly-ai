@@ -75,6 +75,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'config',
+    'trainers',
+    'clients',
 ]
 
 MIDDLEWARE = [
@@ -124,6 +126,27 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+
+TRAINER_PHOTO_ROOT = Path(os.environ.get('TRAINER_PHOTO_ROOT', BASE_DIR / 'media' / 'trainer-photos'))
+
+_object_storage_endpoint = os.environ.get('OBJECT_STORAGE_ENDPOINT', '').strip()
+if _object_storage_endpoint:
+    AWS_S3_ENDPOINT_URL = _object_storage_endpoint
+    AWS_STORAGE_BUCKET_NAME = os.environ['OBJECT_STORAGE_BUCKET']
+    AWS_S3_ACCESS_KEY_ID = os.environ.get('OBJECT_STORAGE_ACCESS_KEY', '')
+    AWS_S3_SECRET_ACCESS_KEY = os.environ.get('OBJECT_STORAGE_SECRET_KEY', '')
+    AWS_S3_FILE_OVERWRITE = True
+    AWS_DEFAULT_ACL = 'private'
+    AWS_QUERYSTRING_AUTH = True
+    _trainer_photo_storage = {'BACKEND': 'storages.backends.s3.S3Storage'}
+else:
+    _trainer_photo_storage = {'BACKEND': 'trainers.storage.TrainerPhotoFileStorage'}
+
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+    'trainer_photos': _trainer_photo_storage,
+}
 
 MAILERS = {
     'default': {

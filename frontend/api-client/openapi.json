@@ -1,0 +1,176 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Trenly API",
+        "version": "0.1.0",
+        "description": "API кабинета тренера."
+    },
+    "paths": {
+        "/api/clients": {
+            "get": {
+                "operationId": "clients_list",
+                "tags": [
+                    "clients"
+                ],
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Client"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/trainer-sessions": {
+            "post": {
+                "operationId": "trainer_sessions_create",
+                "tags": [
+                    "trainer-sessions"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerSessionRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerSessionRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerSessionRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainerSessionResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Client": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "title": "Имя",
+                        "maxLength": 150
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "title": "Фамилия",
+                        "maxLength": 150
+                    },
+                    "phone": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "height": {
+                        "type": "integer",
+                        "maximum": 32767,
+                        "minimum": 0,
+                        "nullable": true,
+                        "title": "Рост"
+                    },
+                    "weight": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 10000,
+                        "minimum": -10000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true
+                    },
+                    "status": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/StatusEnum"
+                            }
+                        ],
+                        "title": "Статус"
+                    }
+                },
+                "required": [
+                    "first_name",
+                    "id",
+                    "phone",
+                    "weight"
+                ]
+            },
+            "StatusEnum": {
+                "enum": [
+                    "active",
+                    "disconnected"
+                ],
+                "type": "string",
+                "description": "* `active` - активен\n* `disconnected` - отключён"
+            },
+            "TrainerSessionRequest": {
+                "type": "object",
+                "properties": {
+                    "phone": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "password",
+                    "phone"
+                ]
+            },
+            "TrainerSessionResponse": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "Bearer": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
+    }
+}

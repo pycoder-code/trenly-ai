@@ -29,6 +29,7 @@ Trenly — сервис, который упрощает работу персо
 | Бэкенд (API, админка, интеграции) | Python, Django, Django REST Framework, drf-spectacular ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
 | Telegram-бот | aiogram 3, отдельное приложение, связь с API по HTTP ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)) |
 | База данных | PostgreSQL ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
+| Состояния диалога бота | Redis ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)) |
 | Админка | Django Admin ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
 | Кабинет тренера | Vue 3, TypeScript, Vite, PrimeVue, Pinia ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
 | Хранение фото | Yandex Object Storage ([ADR 0002](docs/architecture/adr/0002-photo-storage.md)) |
@@ -44,15 +45,17 @@ trenly-ai/
 ├── docs/          документация
 ├── openspec/      функциональные требования и изменения в работе
 ├── backend/       Django: API, интеграции, админка
-├── frontend/      Vue: кабинет тренера (появится в E1)
-├── tg_bot/        aiogram 3: чат клиента (появится в E3, ADR 0006)
+├── frontend/      Vue: оболочка Mini App и клиент API
+│   ├── api-client/  типы и fetch по схеме OpenAPI
+│   └── miniapp/     оболочка Mini App
+├── tg_bot/        aiogram 3: чат клиента (зависимости; диалоги — E3, ADR 0006)
 ├── templates/     шаблоны документов
 └── AGENTS.md      правила для ИИ-агентов
 ```
 
 ## Локальный запуск бэкенда
 
-Нужны [uv](https://docs.astral.sh/uv/) и Docker Compose. Из корня репозитория:
+Нужны [uv](https://docs.astral.sh/uv/) и Docker Compose. Compose поднимает PostgreSQL для API и Redis для незавершённого шага чата бота. Django к Redis не подключается: состояния диалога читает и пишет только `tg_bot/` ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)). Из корня:
 
 ```bash
 docker-compose up -d
@@ -63,9 +66,50 @@ uv run python manage.py migrate
 uv run python manage.py runserver
 ```
 
-Если установлен плагин Compose V2, базу поднимает `docker compose up -d`.
+Если установлен плагин Compose V2, хранилища поднимает `docker compose up -d`. Redis слушает `localhost:6379` без пароля — только для локального запуска.
 
 Приложение слушает http://127.0.0.1:8000. `GET /api/health/` возвращает `{"status": "ok"}`, `GET /api/schema/` — документ OpenAPI. Админка: http://127.0.0.1:8000/admin/.
+
+Зависимости бота ставятся отдельно, тем же интерпретатором Python 3.14:
+
+```bash
+cd tg_bot
+uv sync
+```
+
+Прямая зависимость — `aiogram[redis]` 3.31: фреймворк бота и клиент Redis для шага диалога. Вызовы внутреннего API Django появятся вместе с кодом бота.
+
+## Локальный запуск Mini App
+
+Нужны Node.js и pnpm 12. Если команда `pnpm` не находится, один раз включите её через Corepack, он идёт вместе с Node: `corepack enable`. Из корня:
+
+```bash
+cd frontend
+pnpm install
+```
+
+Клиент API генерируется из схемы Django. Схему снимают из `backend/`, типы — из `frontend/`:
+
+```bash
+cd backend
+uv run python manage.py spectacular --file ../frontend/api-client/openapi.json --format openapi-json
+cd ../frontend
+pnpm --filter api-client generate
+```
+
+Запуск оболочки:
+
+```bash
+cd frontend
+pnpm --filter miniapp dev
+```
+
+Сборка оболочки:
+
+```bash
+cd frontend
+pnpm --filter miniapp build
+```
 
 ## Документация
 
@@ -78,6 +122,7 @@ uv run python manage.py runserver
 | [Глоссарий](docs/glossary.md) | Термины и имена сущностей в коде |
 | [Функциональные требования](openspec/specs) | Спецификации OpenSpec |
 | [C4-модель](docs/architecture/c4/README.md) | Архитектура: контекст, контейнеры, компоненты, код |
+| [Модель данных](docs/architecture/data-model.md) | Логическая схема PostgreSQL, диаграмма `erDiagram` |
 | [ADR](docs/architecture/adr/README.md) | Архитектурные решения |
 | [Интеграции](docs/architecture/integrations.md) | Внешние системы |
 | [Нефункциональные требования](docs/nfr) | Безопасность, персональные данные, производительность |
