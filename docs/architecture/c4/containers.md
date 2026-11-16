@@ -12,23 +12,23 @@
 | Кабинет тренера | Веб-интерфейс тренера в браузере | Vue 3, TypeScript, PrimeVue | `frontend/dashboard/` |
 | Mini App | Веб-интерфейс клиента внутри Telegram | Vue 3, TypeScript | `frontend/miniapp/` |
 | Бот | Чат клиента: приём апдейтов Telegram и отправка сообщений | aiogram 3 | `tg_bot/` |
-| База данных | Клиенты, анкеты, дневник, тренировки, рекомендации | PostgreSQL | — |
-| Состояния диалога | Незавершённый шаг чата | Redis | — |
+| База данных | Клиенты, анкеты, дневник, тренировки | PostgreSQL | — |
+| Состояния диалога | Шаг диалога и черновик незавершённой пачки | Redis | — |
 
 ## Связи
 
 | Откуда | Куда | Что передаётся | Протокол |
 |---|---|---|---|
 | Кабинет тренера | API | Действия тренера и чтение данных клиентов | HTTPS, JSON, Bearer |
-| Mini App | API | Анкета, дневник, история тренировок, награды, графики и отчёт | HTTPS, JSON, Bearer |
+| Mini App | API | Дневник и итог КБЖУ, ручной ввод КБЖУ, тренировки по дням, статистика посещений | HTTPS, JSON, Bearer |
 | Mini App | Бот | `initData` в обмен на токен клиента. Данные экранов бот не проксирует | HTTPS, JSON |
 | Бот | API | Действие клиента (`telegram_user_id`), выдача токена клиента и запрос исходящих сообщений | HTTP, JSON, сервисный токен |
 | Telegram | Бот | Апдейт чата. Локально бот забирает сам (polling), в окружениях Telegram вызывает webhook | Bot API |
 | Бот | Telegram | Текст и кнопки клиенту | Bot API |
-| Бот | Состояния диалога | Текущий шаг чата | Redis |
+| Бот | Состояния диалога | Шаг диалога и черновик пачки | Redis |
 | API | База данных | Доменные записи | SQL |
-| API | OpenRouter | Фото еды и запрос оценки КБЖУ, с E7 | HTTPS |
-| API | Yandex Object Storage | Фото еды, с E7 | S3 API |
+| API | OpenRouter | Фото еды и запрос оценки КБЖУ, с E3 | HTTPS |
+| API | Yandex Object Storage | Фото еды, с E3 | S3 API |
 
 ## Диаграмма
 
@@ -56,7 +56,7 @@ flowchart TB
     telegram -- "Webhook или polling" --> bot
     bot -- "HTTP, сервисный токен" --> api
     bot -- "Bot API" --> telegram
-    bot -- "Шаг чата" --> redis
+    bot -- "Шаг и черновик пачки" --> redis
     api -- "SQL" --> db
 
     classDef person fill:#08427b,stroke:#052e56,color:#fff
