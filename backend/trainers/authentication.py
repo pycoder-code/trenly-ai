@@ -24,7 +24,7 @@ class TrainerTokenAuthentication(BaseAuthentication):
         try:
             payload = signing.loads(token, salt=TOKEN_SALT, max_age=TOKEN_MAX_AGE_SECONDS)
             trainer = Trainer.objects.get(pk=payload['trainer_id'])
-        except (signing.BadSignature, signing.SignatureExpired, Trainer.DoesNotExist, KeyError, TypeError):
+        except signing.BadSignature, signing.SignatureExpired, Trainer.DoesNotExist, KeyError, TypeError:
             raise AuthenticationFailed(INVALID_CREDENTIALS) from None
         if trainer.status != Trainer.Status.ACTIVE:
             raise AuthenticationFailed(INVALID_CREDENTIALS)

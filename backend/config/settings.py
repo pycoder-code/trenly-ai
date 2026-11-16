@@ -58,10 +58,7 @@ load_env_file(BASE_DIR / '.env')
 DEBUG = env_flag('DEBUG')
 SECRET_KEY = os.environ.get('SECRET_KEY', LOCAL_INSECURE_SECRET_KEY)
 if not DEBUG and SECRET_KEY == LOCAL_INSECURE_SECRET_KEY:
-    raise ImproperlyConfigured(
-        'Без DEBUG приложение не стартует с SECRET_KEY из примера. '
-        'Задайте свой SECRET_KEY.'
-    )
+    raise ImproperlyConfigured('Без DEBUG приложение не стартует с SECRET_KEY из примера. Задайте свой SECRET_KEY.')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 

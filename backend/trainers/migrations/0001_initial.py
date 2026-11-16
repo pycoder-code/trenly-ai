@@ -4,11 +4,9 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
@@ -20,7 +18,15 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=150, verbose_name='имя')),
                 ('last_name', models.CharField(max_length=150, verbose_name='фамилия')),
                 ('photo', models.CharField(blank=True, max_length=255, verbose_name='фото')),
-                ('status', models.CharField(choices=[('active', 'активен'), ('blocked', 'заблокирован')], default='active', max_length=16, verbose_name='статус')),
+                (
+                    'status',
+                    models.CharField(
+                        choices=[('active', 'активен'), ('blocked', 'заблокирован')],
+                        default='active',
+                        max_length=16,
+                        verbose_name='статус',
+                    ),
+                ),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='создан')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='обновлён')),
             ],

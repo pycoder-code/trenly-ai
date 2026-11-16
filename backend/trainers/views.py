@@ -37,10 +37,6 @@ class TrainerSessionView(APIView):
         except ValidationError:
             return Response({'detail': INVALID_CREDENTIALS}, status=401)
         trainer = Trainer.objects.filter(phone=normalized).first()
-        if (
-            trainer is None
-            or trainer.status != Trainer.Status.ACTIVE
-            or not trainer.check_password(str(password))
-        ):
+        if trainer is None or trainer.status != Trainer.Status.ACTIVE or not trainer.check_password(str(password)):
             return Response({'detail': INVALID_CREDENTIALS}, status=401)
         return Response({'token': issue_trainer_token(trainer.pk)}, status=201)

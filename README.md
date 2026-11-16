@@ -2,8 +2,11 @@
 
 Trenly — сервис, который упрощает работу персонального фитнес-тренера с клиентами.
 
-- **Клиент** работает через Telegram-бота: заполняет анкету, отправляет фото еды и подтверждает оценку КБЖУ, отвечает, придёт ли на занятие. В Mini App видит дневник, итог за день, тренировки по дням и статистику посещений. Неподтверждённую оценку вводит вручную.
-- **Тренер** работает в веб-кабинете: видит своих клиентов и на сегодня — кто подтвердил приход, кто ещё не ответил и кто отказался.
+- **Клиент** работает через Telegram-бота: заполняет анкету, отправляет фото еды и подтверждает оценку КБЖУ, отвечает,
+  придёт ли на занятие. В Mini App видит дневник, итог за день, тренировки по дням и статистику посещений.
+  Неподтверждённую оценку вводит вручную.
+- **Тренер** работает в веб-кабинете: видит своих клиентов и на сегодня — кто подтвердил приход, кто ещё не ответил и
+  кто отказался.
 - **Администратор** управляет тренерами через админку: добавляет их вручную.
 
 Для клиента сервис бесплатный. Тренера заводит администратор. Пользователи находятся в России.
@@ -12,7 +15,8 @@ Trenly — сервис, который упрощает работу персо
 
 ## Как ведётся разработка
 
-Разработка ведётся по спецификациям с помощью [OpenSpec](https://github.com/Fission-AI/OpenSpec): сначала согласуются требования, затем ИИ-агент и разработчики реализуют их по задачам.
+Разработка ведётся по спецификациям с помощью [OpenSpec](https://github.com/Fission-AI/OpenSpec): сначала согласуются
+требования, затем ИИ-агент и разработчики реализуют их по задачам.
 
 ```text
 /opsx:propose <change-id>   предложение: требования, дизайн, задачи
@@ -20,21 +24,26 @@ Trenly — сервис, который упрощает работу персо
 /opsx:archive               после выкатки требования попадают в openspec/specs/
 ```
 
-Процесс целиком — в [docs/spec-driven-process.md](docs/spec-driven-process.md), правила для ИИ-агентов — в [AGENTS.md](AGENTS.md).
+Процесс целиком — в [docs/spec-driven-process.md](docs/spec-driven-process.md), правила для ИИ-агентов — в
+[AGENTS.md](AGENTS.md).
 
 ## Технологии
 
-| Часть | Технологии |
-|---|---|
-| Бэкенд (API, админка, интеграции) | Python, Django, Django REST Framework, drf-spectacular ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
-| Telegram-бот | aiogram 3, отдельное приложение, связь с API по HTTP ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)) |
-| База данных | PostgreSQL ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
-| Состояния диалога бота | Redis ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)) |
-| Админка | Django Admin ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
-| Кабинет тренера | Vue 3, TypeScript, Vite, PrimeVue, Pinia ([ADR 0005](docs/architecture/adr/0005-tech-stack.md)) |
-| Хранение фото | Yandex Object Storage ([ADR 0002](docs/architecture/adr/0002-photo-storage.md)) |
-| Распознавание КБЖУ | OpenRouter; модель не зафиксирована ([ADR 0004](docs/architecture/adr/0004-macros-recognition-openrouter.md)) |
-| Канал клиента | Telegram Bot API |
+- **Часть:** Бэкенд (API, админка, интеграции). **Технологии:** Python, Django, Django REST Framework, drf-spectacular
+  ([ADR 0005](docs/architecture/adr/0005-tech-stack.md))
+- **Часть:** Telegram-бот. **Технологии:** aiogram 3 и aiogram_dialog 2, отдельное приложение, связь с API по HTTP
+  ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md))
+- **Часть:** База данных. **Технологии:** PostgreSQL ([ADR 0005](docs/architecture/adr/0005-tech-stack.md))
+- **Часть:** Состояния диалога бота. **Технологии:** Redis
+  ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md))
+- **Часть:** Админка. **Технологии:** Django Admin ([ADR 0005](docs/architecture/adr/0005-tech-stack.md))
+- **Часть:** Кабинет тренера. **Технологии:** Vue 3, TypeScript, Vite, PrimeVue, Pinia
+  ([ADR 0005](docs/architecture/adr/0005-tech-stack.md))
+- **Часть:** Хранение фото. **Технологии:** Yandex Object Storage
+  ([ADR 0002](docs/architecture/adr/0002-photo-storage.md))
+- **Часть:** Распознавание КБЖУ. **Технологии:** OpenRouter; модель не зафиксирована
+  ([ADR 0004](docs/architecture/adr/0004-macros-recognition-openrouter.md))
+- **Часть:** Канал клиента. **Технологии:** Telegram Bot API
 
 ## Структура репозитория
 
@@ -48,14 +57,16 @@ trenly-ai/
 ├── frontend/      Vue: оболочка Mini App и клиент API
 │   ├── api-client/  типы и fetch по схеме OpenAPI
 │   └── miniapp/     оболочка Mini App
-├── tg_bot/        aiogram 3: чат клиента (зависимости; диалоги — с E2, ADR 0006)
+├── tg_bot/        aiogram 3 и aiogram_dialog 2: чат клиента (зависимости; диалоги — с E2, ADR 0006)
 ├── templates/     шаблоны документов
 └── AGENTS.md      правила для ИИ-агентов
 ```
 
 ## Локальный запуск бэкенда
 
-Нужны [uv](https://docs.astral.sh/uv/) и Docker Compose. Compose поднимает PostgreSQL для API и Redis для незавершённого шага чата бота. Django к Redis не подключается: состояния диалога читает и пишет только `tg_bot/` ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)). Из корня:
+Нужны [uv](https://docs.astral.sh/uv/) и Docker Compose. Compose поднимает PostgreSQL для API и Redis для незавершённого
+шага чата бота. Django к Redis не подключается: состояния диалога читает и пишет только `tg_bot/`
+([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)). Из корня:
 
 ```bash
 docker-compose up -d
@@ -66,9 +77,11 @@ uv run python manage.py migrate
 uv run python manage.py runserver
 ```
 
-Если установлен плагин Compose V2, хранилища поднимает `docker compose up -d`. Redis слушает `localhost:6379` без пароля — только для локального запуска.
+Если установлен плагин Compose V2, хранилища поднимает `docker compose up -d`. Redis слушает `localhost:6379` без пароля
+— только для локального запуска.
 
-Приложение слушает http://127.0.0.1:8000. `GET /api/health/` возвращает `{"status": "ok"}`, `GET /api/schema/` — документ OpenAPI. Админка: http://127.0.0.1:8000/admin/.
+Приложение слушает http://127.0.0.1:8000. `GET /api/health/` возвращает `{"status": "ok"}`, `GET /api/schema/` —
+документ OpenAPI. Админка: http://127.0.0.1:8000/admin/.
 
 Зависимости бота ставятся отдельно, тем же интерпретатором Python 3.14:
 
@@ -77,11 +90,14 @@ cd tg_bot
 uv sync
 ```
 
-Прямая зависимость — `aiogram[redis]` 3.31: фреймворк бота и клиент Redis для шага диалога. Вызовы внутреннего API Django появятся вместе с кодом бота.
+Прямые зависимости — `aiogram[redis]` 3.31 и `aiogram_dialog` 2.6.0: фреймворк бота, клиент Redis для шага диалога и
+окна диалога ([ADR 0006](docs/architecture/adr/0006-telegram-bot-aiogram.md)). Вызовы внутреннего API Django появятся
+вместе с кодом бота.
 
 ## Локальный запуск Mini App
 
-Нужны Node.js и pnpm 12. Если команда `pnpm` не находится, один раз включите её через Corepack, он идёт вместе с Node: `corepack enable`. Из корня:
+Нужны Node.js и pnpm 12. Если команда `pnpm` не находится, один раз включите её через Corepack, он идёт вместе с Node:
+`corepack enable`. Из корня:
 
 ```bash
 cd frontend
@@ -113,20 +129,20 @@ pnpm --filter miniapp build
 
 ## Документация
 
-| Документ | Что внутри |
-|---|---|
-| [Видение](docs/business/vision.md) | Суть продукта, роли, цели, границы |
-| [Бизнес-требования](docs/business/requirements.md) | BR-001–BR-011. Роадмап покрывает BR-001–BR-006 |
-| [Роадмап](docs/business/roadmap.md) | Эпики и порядок реализации |
-| [Глоссарий](docs/glossary.md) | Термины и имена сущностей в коде |
-| [Функциональные требования](openspec/specs) | Спецификации OpenSpec |
-| [C4-модель](docs/architecture/c4/README.md) | Архитектура: контекст, контейнеры, компоненты, код |
-| [Модель данных](docs/architecture/data-model.md) | Логическая схема PostgreSQL, диаграмма `erDiagram` |
-| [ADR](docs/architecture/adr/README.md) | Архитектурные решения |
-| [Интеграции](docs/architecture/integrations.md) | Внешние системы |
-| [Нефункциональные требования](docs/nfr) | Безопасность, персональные данные, производительность |
-| [API](docs/api/README.md) | API-контракты |
-| [Эксплуатация](docs/operations) | Окружения, релизы, runbooks |
+| Документ                                           | Что внутри                                            |
+| -------------------------------------------------- | ----------------------------------------------------- |
+| [Видение](docs/business/vision.md)                 | Суть продукта, роли, цели, границы                    |
+| [Бизнес-требования](docs/business/requirements.md) | BR-001–BR-011. Роадмап покрывает BR-001–BR-006        |
+| [Роадмап](docs/business/roadmap.md)                | Эпики и порядок реализации                            |
+| [Глоссарий](docs/glossary.md)                      | Термины и имена сущностей в коде                      |
+| [Функциональные требования](openspec/specs)        | Спецификации OpenSpec                                 |
+| [C4-модель](docs/architecture/c4/README.md)        | Архитектура: контекст, контейнеры, компоненты, код    |
+| [Модель данных](docs/architecture/data-model.md)   | Логическая схема PostgreSQL, диаграмма `erDiagram`    |
+| [ADR](docs/architecture/adr/README.md)             | Архитектурные решения                                 |
+| [Интеграции](docs/architecture/integrations.md)    | Внешние системы                                       |
+| [Нефункциональные требования](docs/nfr)            | Безопасность, персональные данные, производительность |
+| [API](docs/api/README.md)                          | API-контракты                                         |
+| [Эксплуатация](docs/operations)                    | Окружения, релизы, runbooks                           |
 
 ## Как связаны документы
 

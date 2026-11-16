@@ -1,5 +1,11 @@
 {
   "name": "trenly-frontend",
   "private": true,
-  "packageManager": "pnpm@12.18.0"
+  "packageManager": "pnpm@12.18.0",
+  "scripts": {
+    "format": "prettier --write .. --ignore-path ../.prettierignore"
+  },
+  "devDependencies": {
+    "prettier": "^3.10.1"
+  }
 }

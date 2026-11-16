@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -23,11 +22,30 @@ class Migration(migrations.Migration):
                 ('last_name', models.CharField(blank=True, max_length=150, verbose_name='фамилия')),
                 ('phone', models.CharField(blank=True, max_length=12, verbose_name='телефон')),
                 ('height', models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='рост')),
-                ('weight', models.DecimalField(blank=True, decimal_places=1, max_digits=5, null=True, verbose_name='вес')),
-                ('status', models.CharField(choices=[('active', 'активен'), ('disconnected', 'отключён')], default='active', max_length=16, verbose_name='статус')),
+                (
+                    'weight',
+                    models.DecimalField(blank=True, decimal_places=1, max_digits=5, null=True, verbose_name='вес'),
+                ),
+                (
+                    'status',
+                    models.CharField(
+                        choices=[('active', 'активен'), ('disconnected', 'отключён')],
+                        default='active',
+                        max_length=16,
+                        verbose_name='статус',
+                    ),
+                ),
                 ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='создан')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='обновлён')),
-                ('trainer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='clients', to='trainers.trainer', verbose_name='тренер')),
+                (
+                    'trainer',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name='clients',
+                        to='trainers.trainer',
+                        verbose_name='тренер',
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'клиент',
