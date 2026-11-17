@@ -18,7 +18,7 @@ Trenly — единая система, с которой работают тр�
 ## Внешние системы
 
 - **Система:** Telegram. **Зачем нужна:** Канал клиента: чат бота и оболочка Mini App. **Взаимодействие:** Чат: Trenly ↔
-  Telegram Bot API. Mini App открывается в WebView Telegram и вызывает Trenly по HTTPS. **Когда появляется:** E2
+  Telegram Bot API. Mini App открывается в WebView Telegram и вызывает Trenly по HTTPS. **Когда появляется:** E2.3
 - **Система:** OpenRouter (AI-модели). **Зачем нужна:** Распознавание КБЖУ по фото еды. Модель не зафиксирована
   ([ADR 0004](../adr/0004-macros-recognition-openrouter.md)). **Взаимодействие:** Trenly → OpenRouter API.
   **Когда появляется:** E3

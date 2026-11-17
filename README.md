@@ -20,7 +20,9 @@ Trenly — сервис, который упрощает работу персо
 
 ```text
 /opsx:propose <change-id>   предложение: требования, дизайн, задачи
+feature/<change-id>         ветка от main перед реализацией
 /opsx:apply                 реализация по задачам
+/opsx:commit                коммит и pull request в main
 /opsx:archive               после выкатки требования попадают в openspec/specs/
 ```
 
@@ -57,7 +59,7 @@ trenly-ai/
 ├── frontend/      Vue: оболочка Mini App и клиент API
 │   ├── api-client/  типы и fetch по схеме OpenAPI
 │   └── miniapp/     оболочка Mini App
-├── tg_bot/        aiogram 3 и aiogram_dialog 2: чат клиента (зависимости; диалоги — с E2, ADR 0006)
+├── tg_bot/        aiogram 3 и aiogram_dialog 2: чат клиента (зависимости; диалоги — с E2.3, ADR 0006)
 ├── templates/     шаблоны документов
 └── AGENTS.md      правила для ИИ-агентов
 ```
