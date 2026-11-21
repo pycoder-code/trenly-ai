@@ -4,6 +4,8 @@ from clients.models import Client
 from django.contrib import admin
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
+from django.core.files.storage import storages
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
 from trainers.models import Trainer
@@ -31,6 +33,14 @@ class TrainerAdminTests(TestCase):
         self.admin_user = User.objects.create_superuser('admin', 'admin@example.com', 'Admin-pass-1')
         self.client.force_login(self.admin_user)
 
+    def tearDown(self):
+        """Убирает файлы фото, записанные тестом."""
+        storage = storages['trainer_photos']
+        for trainer in Trainer.objects.all():
+            name = trainer.photo.name
+            if name and storage.exists(name):
+                storage.delete(name)
+
     def post_trainer(self, phone, *, first_name='Иван', last_name='Петров'):
         """Отправляет форму нового тренера."""
         return self.client.post(
@@ -52,9 +62,48 @@ class TrainerAdminTests(TestCase):
         trainer = Trainer.objects.get()
         self.assertEqual(trainer.phone, '+79991234567')
         self.assertEqual(trainer.status, Trainer.Status.ACTIVE)
-        self.assertEqual(trainer.photo, '')
+        self.assertFalse(trainer.photo)
         self.assertTrue(check_password(PASSWORD, trainer.password))
         self.assertNotEqual(trainer.password, PASSWORD)
+
+    def test_create_with_photo(self):
+        """Имя фото выбирает хранилище Django."""
+        photo = SimpleUploadedFile('trainer-create.jpg', b'first-photo', content_type='image/jpeg')
+        response = self.client.post(
+            '/admin/trainers/trainer/add/',
+            {
+                'phone': '+79991234567',
+                'first_name': 'Иван',
+                'last_name': 'Петров',
+                'status': Trainer.Status.ACTIVE,
+                'password1': PASSWORD,
+                'password2': PASSWORD,
+                'photo': photo,
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        trainer = Trainer.objects.get()
+        self.assertEqual(trainer.photo, 'trainer-create.jpg')
+        storage = storages['trainer_photos']
+        with storage.open(trainer.photo.name) as stored:
+            self.assertEqual(stored.read(), b'first-photo')
+
+    def test_replace_photo(self):
+        """Новый файл заменяет фото тренера."""
+        trainer = create_trainer()
+        first = SimpleUploadedFile('trainer-replace.jpg', b'first-photo', content_type='image/jpeg')
+        second = SimpleUploadedFile('trainer-replace.png', b'second-photo', content_type='image/png')
+        change_url = f'/admin/trainers/trainer/{trainer.pk}/change/'
+        saved = self.client.post(change_url, self._change_data(trainer, photo=first))
+        self.assertEqual(saved.status_code, 302)
+        replaced = self.client.post(change_url, self._change_data(trainer, photo=second))
+        self.assertEqual(replaced.status_code, 302)
+        trainer.refresh_from_db()
+        self.assertEqual(trainer.photo, 'trainer-replace.png')
+        storage = storages['trainer_photos']
+        self.assertFalse(storage.exists('trainer-replace.jpg'))
+        with storage.open(trainer.photo.name) as stored:
+            self.assertEqual(stored.read(), b'second-photo')
 
     def test_duplicate_phone_is_rejected(self):
         """Второй тренер с тем же телефоном не создаётся."""
@@ -129,6 +178,19 @@ class TrainerAdminTests(TestCase):
         self.assertEqual(unblocked.status_code, 302)
         trainer.refresh_from_db()
         self.assertEqual(trainer.status, Trainer.Status.ACTIVE)
+
+    def _change_data(self, trainer, **extra):
+        """Поля формы существующего тренера без смены пароля."""
+        data = {
+            'phone': trainer.phone,
+            'first_name': trainer.first_name,
+            'last_name': trainer.last_name,
+            'status': trainer.status,
+            'password1': '',
+            'password2': '',
+        }
+        data.update(extra)
+        return data
 
     def test_trainer_cannot_log_into_admin(self):
         """Тренер не входит в админку своим телефоном."""

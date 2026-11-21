@@ -1,7 +1,13 @@
 """Таблица тренера."""
 
 from common.models import TimeStampedModel
+from django.core.files.storage import storages
 from django.db import models
+
+
+def trainer_photo_storage():
+    """Хранилище фото тренера из настроек."""
+    return storages['trainer_photos']
 
 
 class Trainer(TimeStampedModel):
@@ -17,7 +23,7 @@ class Trainer(TimeStampedModel):
     password = models.CharField('пароль', max_length=128)
     first_name = models.CharField('имя', max_length=150)
     last_name = models.CharField('фамилия', max_length=150)
-    photo = models.CharField('фото', max_length=255, blank=True)
+    photo = models.FileField('фото', storage=trainer_photo_storage, max_length=255, blank=True)
     status = models.CharField(
         'статус',
         max_length=16,

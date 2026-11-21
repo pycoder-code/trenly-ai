@@ -6,6 +6,7 @@ import jwt
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import signing
+from django.core.files.storage import storages
 from django.test import TestCase
 from django.utils import timezone
 
@@ -182,6 +183,115 @@ class TrainerAuthTests(TestCase):
         )
 
 
+class TrainerDetailTests(TestCase):
+    """Имя текущего тренера."""
+
+    def test_own_name(self):
+        """Активный тренер получает свои имя и фамилию."""
+        create_trainer(first_name='Иван', last_name='Петров')
+        response = self.client.get('/api/trainers/me', HTTP_AUTHORIZATION=f'Bearer {self._access_token()}')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {'first_name': 'Иван', 'last_name': 'Петров', 'photo': None},
+        )
+
+    def test_other_trainer_name_is_absent(self):
+        """В ответе нет имени другого тренера."""
+        create_trainer(first_name='Иван', last_name='Петров')
+        create_trainer(phone='+79990000001', first_name='Мария', last_name='Иванова')
+        response = self.client.get('/api/trainers/me', HTTP_AUTHORIZATION=f'Bearer {self._access_token()}')
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode()
+        self.assertNotIn('Мария', body)
+        self.assertNotIn('Иванова', body)
+
+    def test_response_includes_photo_url_and_omits_secrets(self):
+        """Адрес фото есть. Телефон, пароль и статус в ответ не попадают."""
+        trainer = create_trainer(photo='face.jpg')
+        response = self.client.get('/api/trainers/me', HTTP_AUTHORIZATION=f'Bearer {self._access_token()}')
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(set(body), {'first_name', 'last_name', 'photo'})
+        photo_path = storages['trainer_photos'].url('face.jpg')
+        self.assertEqual(body['photo'], f'http://testserver{photo_path}')
+        raw = response.content.decode()
+        self.assertNotIn(trainer.phone, raw)
+        self.assertNotIn(trainer.password, raw)
+        self.assertNotIn(trainer.status, raw)
+
+    def test_without_login(self):
+        """Без входа имя закрыто."""
+        create_trainer(first_name='Иван', last_name='Петров')
+        response = self.client.get('/api/trainers/me')
+        self.assertEqual(response.status_code, 401)
+        body = response.content.decode()
+        self.assertNotIn('first_name', body)
+        self.assertNotIn('Иван', body)
+        self.assertNotIn('Петров', body)
+
+    def test_refresh_token_is_not_access(self):
+        """Токен обновления не открывает имя."""
+        create_trainer()
+        pair = self._login().json()
+        response = self.client.get(
+            '/api/trainers/me',
+            HTTP_AUTHORIZATION=f'Bearer {pair["refresh_token"]}',
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), UNAUTHORIZED)
+        self.assertNotIn('first_name', response.json())
+
+    def test_expired_access_token(self):
+        """Просроченный токен доступа не открывает имя."""
+        trainer = create_trainer(first_name='Иван', last_name='Петров')
+        expired = jwt.encode(
+            {'sub': str(trainer.pk), 'exp': timezone.now() - timedelta(minutes=1)},
+            settings.SECRET_KEY,
+            algorithm='HS256',
+        )
+        response = self.client.get('/api/trainers/me', HTTP_AUTHORIZATION=f'Bearer {expired}')
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), UNAUTHORIZED)
+        self.assertNotIn('Иван', response.content.decode())
+
+    def test_unsigned_access_token(self):
+        """Чужая подпись не открывает имя."""
+        trainer = create_trainer(first_name='Иван', last_name='Петров')
+        foreign = jwt.encode(
+            {'sub': str(trainer.pk), 'exp': timezone.now() + timedelta(minutes=5)},
+            'other-secret',
+            algorithm='HS256',
+        )
+        response = self.client.get('/api/trainers/me', HTTP_AUTHORIZATION=f'Bearer {foreign}')
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), UNAUTHORIZED)
+        self.assertNotIn('Иван', response.content.decode())
+
+    def test_blocked_trainer(self):
+        """Заблокированный тренер имя не получает."""
+        trainer = create_trainer(first_name='Иван', last_name='Петров')
+        access_token = self._access_token()
+        trainer.status = Trainer.Status.BLOCKED
+        trainer.save(update_fields=['status'])
+        response = self.client.get('/api/trainers/me', HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json(), UNAUTHORIZED)
+        self.assertNotIn('Иван', response.content.decode())
+
+    def _access_token(self, phone='+79991234567'):
+        """Токен доступа действующего входа."""
+        return self._login(phone).json()['access_token']
+
+    def _login(self, phone='+79991234567', password=PASSWORD):
+        """Запрашивает пару токенов."""
+        return self.client.post(
+            '/api/access-tokens',
+            {'phone': phone, 'password': password},
+            content_type='application/json',
+        )
+
+
 class OpenApiTests(TestCase):
     """Схема описывает кабинет."""
 
@@ -199,3 +309,17 @@ class OpenApiTests(TestCase):
         self.assertIn('refresh_token', body)
         without_named_tokens = body.replace('access_token', '').replace('refresh_token', '')
         self.assertNotIn('token:', without_named_tokens)
+
+    def test_schema_describes_current_trainer(self):
+        """Схема читает имя текущего тренера и не отдаёт телефон."""
+        response = self.client.get('/api/schema/', HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 200)
+        schema = response.json()
+        operation = schema['paths']['/api/trainers/me']['get']
+        self.assertEqual(operation['security'], [{'Bearer': []}])
+        response_schema = operation['responses']['200']['content']['application/json']['schema']
+        component_name = response_schema['$ref'].rsplit('/', 1)[-1]
+        properties = schema['components']['schemas'][component_name]['properties']
+        self.assertEqual(set(properties), {'first_name', 'last_name', 'photo'})
+        self.assertNotIn('phone', properties)
+        self.assertTrue(properties['photo'].get('nullable'))

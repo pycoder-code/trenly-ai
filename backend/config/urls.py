@@ -1,5 +1,7 @@
 """Корневые пути: админка, схема, здоровье и API доменов."""
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView
@@ -13,3 +15,5 @@ urlpatterns = [
     path('api/', include('trainers.api.urls')),
     path('api/', include('clients.api.urls')),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.TRAINER_PHOTO_URL, document_root=settings.TRAINER_PHOTO_ROOT)

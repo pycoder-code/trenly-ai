@@ -128,6 +128,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 TRAINER_PHOTO_ROOT = Path(os.environ.get('TRAINER_PHOTO_ROOT', BASE_DIR / 'media' / 'trainer-photos'))
+TRAINER_PHOTO_URL = '/media/trainer-photos/'
 
 ACCESS_TOKEN_TTL = timedelta(minutes=15)
 REFRESH_TOKEN_TTL = timedelta(days=14)
@@ -137,7 +138,7 @@ if DEBUG:
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
         'OPTIONS': {
             'location': str(TRAINER_PHOTO_ROOT),
-            'allow_overwrite': True,
+            'base_url': TRAINER_PHOTO_URL,
         },
     }
 else:
@@ -152,7 +153,8 @@ else:
     AWS_STORAGE_BUCKET_NAME = _object_storage_bucket
     AWS_S3_ACCESS_KEY_ID = os.environ.get('OBJECT_STORAGE_ACCESS_KEY', '')
     AWS_S3_SECRET_ACCESS_KEY = os.environ.get('OBJECT_STORAGE_SECRET_KEY', '')
-    AWS_S3_FILE_OVERWRITE = True
+    # Занятое имя получает суффикс, как у FileSystemStorage. Чужой файл не затирается.
+    AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = 'private'
     AWS_QUERYSTRING_AUTH = True
     _trainer_photo_storage = {'BACKEND': 'storages.backends.s3.S3Storage'}
