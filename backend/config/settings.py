@@ -1,6 +1,7 @@
 """Настройки Django-приложения Trenly."""
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -33,10 +34,12 @@ def load_env_file(path: Path) -> None:
 
 
 def env_flag(name: str, default: str = '0') -> bool:
+    """Истина, если переменная окружения равна 1, true, yes или on."""
     return os.environ.get(name, default).strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 def database_from_url(url: str) -> dict:
+    """Настройки PostgreSQL из адреса DATABASE_URL."""
     parsed = urlparse(url)
     if parsed.scheme not in {'postgres', 'postgresql'}:
         raise ImproperlyConfigured('DATABASE_URL должен быть адресом PostgreSQL.')
@@ -126,18 +129,33 @@ STATIC_URL = 'static/'
 
 TRAINER_PHOTO_ROOT = Path(os.environ.get('TRAINER_PHOTO_ROOT', BASE_DIR / 'media' / 'trainer-photos'))
 
-_object_storage_endpoint = os.environ.get('OBJECT_STORAGE_ENDPOINT', '').strip()
-if _object_storage_endpoint:
+ACCESS_TOKEN_TTL = timedelta(minutes=15)
+REFRESH_TOKEN_TTL = timedelta(days=14)
+
+if DEBUG:
+    _trainer_photo_storage = {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'OPTIONS': {
+            'location': str(TRAINER_PHOTO_ROOT),
+            'allow_overwrite': True,
+        },
+    }
+else:
+    _object_storage_endpoint = os.environ.get('OBJECT_STORAGE_ENDPOINT', '').strip()
+    _object_storage_bucket = os.environ.get('OBJECT_STORAGE_BUCKET', '').strip()
+    if not _object_storage_endpoint or not _object_storage_bucket:
+        raise ImproperlyConfigured(
+            'Без DEBUG фото тренера хранится в объектном хранилище. '
+            'Задайте OBJECT_STORAGE_ENDPOINT и OBJECT_STORAGE_BUCKET.'
+        )
     AWS_S3_ENDPOINT_URL = _object_storage_endpoint
-    AWS_STORAGE_BUCKET_NAME = os.environ['OBJECT_STORAGE_BUCKET']
+    AWS_STORAGE_BUCKET_NAME = _object_storage_bucket
     AWS_S3_ACCESS_KEY_ID = os.environ.get('OBJECT_STORAGE_ACCESS_KEY', '')
     AWS_S3_SECRET_ACCESS_KEY = os.environ.get('OBJECT_STORAGE_SECRET_KEY', '')
     AWS_S3_FILE_OVERWRITE = True
     AWS_DEFAULT_ACL = 'private'
     AWS_QUERYSTRING_AUTH = True
     _trainer_photo_storage = {'BACKEND': 'storages.backends.s3.S3Storage'}
-else:
-    _trainer_photo_storage = {'BACKEND': 'trainers.storage.TrainerPhotoFileStorage'}
 
 STORAGES = {
     'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},

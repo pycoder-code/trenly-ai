@@ -13,6 +13,7 @@
 ```mermaid
 erDiagram
     Trainer ||--o{ Client : trainer
+    Trainer ||--o{ RefreshToken : trainer
     Trainer {
         bigint id PK
         string phone UK
@@ -34,7 +35,15 @@ erDiagram
         string phone "может быть пустым"
         int height "может быть пустым, см"
         decimal weight "может быть пустым, кг"
-        string status "active или disconnected"
+        boolean active "клиент активен, по умолчанию да"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    RefreshToken {
+        bigint id PK
+        bigint trainer_id FK
+        string secret_hash UK
+        timestamptz expires_at
         timestamptz created_at
         timestamptz updated_at
     }

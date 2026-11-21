@@ -4,120 +4,166 @@
  */
 
 export interface paths {
-  "/api/clients": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/access-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Пара токенов или отказ, если учётные данные не подходят. */
+        post: operations["access_tokens_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["clients_list"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/trainer-sessions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/clients": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Клиенты, подключённые к тренеру из токена доступа. */
+        get: operations["clients_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post: operations["trainer_sessions_create"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/api/refresh-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Новая пара или отказ, если секрет недействителен. */
+        post: operations["refresh_tokens_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    Client: {
-      readonly id: number;
-      /** Имя */
-      first_name: string;
-      /** Фамилия */
-      last_name?: string;
-      readonly phone: string | null;
-      /** Рост */
-      height?: number | null;
-      /** Format: double */
-      weight: number | null;
-      /** Статус */
-      status?: components["schemas"]["StatusEnum"];
+    schemas: {
+        /** @description Поля клиента, которые видит тренер. */
+        Client: {
+            readonly id: number;
+            /** Имя */
+            first_name: string;
+            /** Фамилия */
+            last_name?: string;
+            readonly phone: string | null;
+            /** Рост */
+            height?: number | null;
+            /** Format: double */
+            weight: number | null;
+            /** Активен */
+            active: boolean;
+        };
+        /** @description Секрет токена обновления. */
+        TrainerAuthRefreshRequest: {
+            refresh_token: string;
+        };
+        /** @description Телефон и пароль. */
+        TrainerAuthRequest: {
+            phone: string;
+            password: string;
+        };
+        /** @description Токен доступа и токен обновления. */
+        TrainerAuthResponse: {
+            access_token: string;
+            refresh_token: string;
+        };
     };
-    /**
-     * @description * `active` - активен
-     *     * `disconnected` - отключён
-     * @enum {string}
-     */
-    StatusEnum: "active" | "disconnected";
-    TrainerSessionRequest: {
-      phone: string;
-      password: string;
-    };
-    TrainerSessionResponse: {
-      token: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  clients_list: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    access_tokens_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["Client"][];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainerAuthRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TrainerAuthRequest"];
+                "multipart/form-data": components["schemas"]["TrainerAuthRequest"];
+            };
         };
-      };
-    };
-  };
-  trainer_sessions_create: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TrainerSessionRequest"];
-        "application/x-www-form-urlencoded": components["schemas"]["TrainerSessionRequest"];
-        "multipart/form-data": components["schemas"]["TrainerSessionRequest"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerAuthResponse"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["TrainerSessionResponse"];
-        };
-      };
     };
-  };
+    clients_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Client"][];
+                };
+            };
+        };
+    };
+    refresh_tokens_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainerAuthRefreshRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TrainerAuthRefreshRequest"];
+                "multipart/form-data": components["schemas"]["TrainerAuthRefreshRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerAuthResponse"];
+                };
+            };
+        };
+    };
 }
