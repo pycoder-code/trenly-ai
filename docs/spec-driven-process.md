@@ -2,7 +2,8 @@
 
 Разработка ведётся по спецификациям с помощью [OpenSpec](https://github.com/Fission-AI/OpenSpec). Документация,
 спецификации, бэкенд, фронтенд и Telegram-бот (`tg_bot/`) лежат в одном репозитории, поэтому одна доработка — это одно
-изменение OpenSpec и один pull request.
+изменение OpenSpec. Код доработки уходит одним pull request с ветки `feature/<change-id>`: backend, frontend и `tg_bot/`
+не разносятся по разным pull request.
 
 **Функциональные требования — это спецификации OpenSpec** в `openspec/specs/`. Отдельного документа с функциональными
 требованиями нет, чтобы не дублировать одно и то же в двух местах.
@@ -60,15 +61,29 @@ PostgreSQL, отдельным файлом, диаграмма Mermaid `erDiagr
 
 ### 2. Реализация
 
+Перед `/opsx:apply` от `main` создаётся ветка `feature/<change-id>`. Для дневника питания это
+`feature/add-nutrition-diary`.
+
 ```text
+git checkout main
+git checkout -b feature/add-nutrition-diary
 /opsx:apply
 ```
 
 ИИ реализует задачи из `tasks.md` в `backend/`, `frontend/` и `tg_bot/`, отмечая выполненные. Сначала бэкенд фиксирует
-API-контракт (OpenAPI), фронтенд генерирует по нему клиент, бот вызывает внутренний API Django. Реализацию можно вести в
-той же ветке или отдельным pull request.
+API-контракт (OpenAPI), фронтенд генерирует по нему клиент, бот вызывает внутренний API Django. Код этой доработки
+остаётся на одной ветке.
 
-### 3. Архивация
+### 3. Коммит
+
+```text
+/opsx:commit
+```
+
+Скилл `.cursor/skills/commit/SKILL.md` коммитит работу на `feature/<change-id>` и открывает pull request в `main`. На
+`main` коммит и push не делаются.
+
+### 4. Архивация
 
 После выкатки в prod:
 

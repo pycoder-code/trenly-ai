@@ -1,159 +1,227 @@
 {
-  "openapi": "3.0.3",
-  "info": {
-    "title": "Trenly API",
-    "version": "0.1.0",
-    "description": "API кабинета тренера."
-  },
-  "paths": {
-    "/api/clients": {
-      "get": {
-        "operationId": "clients_list",
-        "tags": ["clients"],
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Client"
-                  }
-                }
-              }
-            },
-            "description": ""
-          }
-        }
-      }
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Trenly API",
+        "version": "0.1.0",
+        "description": "API кабинета тренера."
     },
-    "/api/trainer-sessions": {
-      "post": {
-        "operationId": "trainer_sessions_create",
-        "tags": ["trainer-sessions"],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrainerSessionRequest"
-              }
-            },
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/TrainerSessionRequest"
-              }
-            },
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/TrainerSessionRequest"
-              }
+    "paths": {
+        "/api/access-tokens": {
+            "post": {
+                "operationId": "access_tokens_create",
+                "description": "Пара токенов или отказ, если учётные данные не подходят.",
+                "tags": [
+                    "access-tokens"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerAuthRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerAuthRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerAuthRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainerAuthResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
             }
-          },
-          "required": true
         },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TrainerSessionResponse"
+        "/api/clients": {
+            "get": {
+                "operationId": "clients_list",
+                "description": "Клиенты, подключённые к тренеру из токена доступа.",
+                "tags": [
+                    "clients"
+                ],
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Client"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
                 }
-              }
-            },
-            "description": ""
-          }
+            }
+        },
+        "/api/refresh-tokens": {
+            "post": {
+                "operationId": "refresh_tokens_create",
+                "description": "Новая пара или отказ, если секрет недействителен.",
+                "tags": [
+                    "refresh-tokens"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerAuthRefreshRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerAuthRefreshRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TrainerAuthRefreshRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainerAuthResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
         }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Client": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "readOnly": true
-          },
-          "first_name": {
-            "type": "string",
-            "title": "Имя",
-            "maxLength": 150
-          },
-          "last_name": {
-            "type": "string",
-            "title": "Фамилия",
-            "maxLength": 150
-          },
-          "phone": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "height": {
-            "type": "integer",
-            "maximum": 32767,
-            "minimum": 0,
-            "nullable": true,
-            "title": "Рост"
-          },
-          "weight": {
-            "type": "number",
-            "format": "double",
-            "maximum": 10000,
-            "minimum": -10000,
-            "exclusiveMaximum": true,
-            "exclusiveMinimum": true,
-            "nullable": true
-          },
-          "status": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StatusEnum"
-              }
-            ],
-            "title": "Статус"
-          }
-        },
-        "required": ["first_name", "id", "phone", "weight"]
-      },
-      "StatusEnum": {
-        "enum": ["active", "disconnected"],
-        "type": "string",
-        "description": "* `active` - активен\n* `disconnected` - отключён"
-      },
-      "TrainerSessionRequest": {
-        "type": "object",
-        "properties": {
-          "phone": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": ["password", "phone"]
-      },
-      "TrainerSessionResponse": {
-        "type": "object",
-        "properties": {
-          "token": {
-            "type": "string"
-          }
-        },
-        "required": ["token"]
-      }
     },
-    "securitySchemes": {
-      "Bearer": {
-        "type": "http",
-        "scheme": "bearer"
-      }
+    "components": {
+        "schemas": {
+            "Client": {
+                "type": "object",
+                "description": "Поля клиента, которые видит тренер.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "title": "Имя",
+                        "maxLength": 150
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "title": "Фамилия",
+                        "maxLength": 150
+                    },
+                    "phone": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "height": {
+                        "type": "integer",
+                        "maximum": 32767,
+                        "minimum": 0,
+                        "nullable": true,
+                        "title": "Рост"
+                    },
+                    "weight": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 10000,
+                        "minimum": -10000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "nullable": true
+                    },
+                    "active": {
+                        "type": "boolean",
+                        "title": "Активен"
+                    }
+                },
+                "required": [
+                    "active",
+                    "first_name",
+                    "id",
+                    "phone",
+                    "weight"
+                ]
+            },
+            "TrainerAuthRefreshRequest": {
+                "type": "object",
+                "description": "Секрет токена обновления.",
+                "properties": {
+                    "refresh_token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "refresh_token"
+                ]
+            },
+            "TrainerAuthRequest": {
+                "type": "object",
+                "description": "Телефон и пароль.",
+                "properties": {
+                    "phone": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "password",
+                    "phone"
+                ]
+            },
+            "TrainerAuthResponse": {
+                "type": "object",
+                "description": "Токен доступа и токен обновления.",
+                "properties": {
+                    "access_token": {
+                        "type": "string"
+                    },
+                    "refresh_token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "access_token",
+                    "refresh_token"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "Bearer": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        }
     }
-  }
 }
