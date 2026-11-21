@@ -29,6 +29,6 @@ class TrainerRepository:
             password_hash=row.password,
             first_name=row.first_name,
             last_name=row.last_name,
-            photo=row.photo,
+            photo=row.photo.url if row.photo else '',
             status=TrainerStatus(row.status),
         )

@@ -116,6 +116,32 @@
                     }
                 }
             }
+        },
+        "/api/trainers/me": {
+            "get": {
+                "operationId": "trainers_me_retrieve",
+                "description": "Имя, фамилия и адрес фото или отказ, если тренера уже нет.",
+                "tags": [
+                    "trainers"
+                ],
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TrainerDetailResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -214,6 +240,28 @@
                 "required": [
                     "access_token",
                     "refresh_token"
+                ]
+            },
+            "TrainerDetailResponse": {
+                "type": "object",
+                "description": "Имя, фамилия и адрес фото тренера.",
+                "properties": {
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    },
+                    "photo": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "first_name",
+                    "last_name",
+                    "photo"
                 ]
             }
         },

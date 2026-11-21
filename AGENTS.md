@@ -7,11 +7,14 @@
 - `docs/` — документация.
 - `openspec/` — спецификации.
 - `backend/` — Django (API, админка на Django Admin).
-- `frontend/` — Vue 3 (кабинет тренера).
+- `frontend/` — Vue 3: кабинет тренера и Mini App клиента.
 - `tg_bot/` — aiogram 3 и aiogram_dialog.
 
 В `backend/` домен — приложение Django со слоями `api`, `dto`, `services`, `entities`, `repositories`, `models`. При
 изменении бэкенда следуй [`backend/AGENTS.md`](backend/AGENTS.md).
+
+Во `frontend/` пакеты `miniapp/`, `api-client/` и будущий `dashboard/`. При изменении фронтенда следуй
+[`frontend/AGENTS.md`](frontend/AGENTS.md).
 
 ## Язык и термины
 
