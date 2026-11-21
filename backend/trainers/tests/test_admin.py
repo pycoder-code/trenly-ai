@@ -1,7 +1,6 @@
 """Админка тренеров."""
 
 from clients.models import Client
-from django.contrib import admin
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import User
 from django.core.files.storage import storages
@@ -123,10 +122,10 @@ class TrainerAdminTests(TestCase):
         self.assertEqual(row._client_count, 2)
         self.assertContains(response, 'активен')
 
-    def test_client_personal_data_is_hidden(self):
-        """Админка не показывает личные данные клиента."""
+    def test_client_list_shows_client_without_body_measures(self):
+        """Список клиентов показывает имя и телефон и скрывает рост и вес."""
         trainer = create_trainer()
-        Client.objects.create(
+        client = Client.objects.create(
             trainer=trainer,
             telegram_user_id=501,
             telegram_username='secret_user',
@@ -136,14 +135,20 @@ class TrainerAdminTests(TestCase):
             height=180,
             weight='70.5',
         )
-        self.assertNotIn(Client, admin.site._registry)
-        for url in ('/admin/', '/admin/trainers/trainer/'):
-            response = self.client.get(url)
-            self.assertNotContains(response, 'ТайныйКлиент')
-            self.assertNotContains(response, 'secret_user')
-            self.assertNotContains(response, '+79990000002')
-        missing = self.client.get('/admin/trainers/client/')
-        self.assertEqual(missing.status_code, 404)
+        listing = self.client.get('/admin/clients/client/')
+        self.assertEqual(listing.status_code, 200)
+        self.assertContains(listing, 'ТайныйКлиент')
+        self.assertContains(listing, 'Скрытый')
+        self.assertContains(listing, 'Иван Петров')
+        self.assertContains(listing, '+79990000002')
+        self.assertContains(listing, 'secret_user')
+        self.assertNotContains(listing, '180')
+        self.assertNotContains(listing, '70.5')
+        card = self.client.get(f'/admin/clients/client/{client.pk}/change/')
+        self.assertEqual(card.status_code, 200)
+        self.assertContains(card, 'ТайныйКлиент')
+        self.assertNotContains(card, 'name="height"')
+        self.assertNotContains(card, 'name="weight"')
 
     def test_block_and_unblock(self):
         """Администратор блокирует и снова открывает тренера."""

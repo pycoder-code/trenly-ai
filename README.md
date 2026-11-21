@@ -48,7 +48,7 @@ trenly-ai/
 ├── docs/          документация
 ├── openspec/      функциональные требования и изменения в работе
 ├── backend/       Django: API, интеграции, админка
-├── frontend/      Vue: оболочка Mini App и клиент API
+├── frontend/      Vue: кабинет тренера, оболочка Mini App и клиент API
 ├── tg_bot/        aiogram 3 и aiogram_dialog 2: чат клиента (зависимости; диалоги — с E2.3, ADR 0006)
 ├── templates/     шаблоны документов
 └── AGENTS.md      правила для ИИ-агентов
@@ -117,6 +117,23 @@ pnpm --filter miniapp dev
 ```bash
 cd frontend
 pnpm --filter miniapp build
+```
+
+## Локальный запуск кабинета
+
+Тот же `pnpm install` из `frontend/`. Кабинет проксирует `/api` и `/media` на Django по адресу http://127.0.0.1:8000,
+поэтому бэкенд должен быть уже запущен.
+
+```bash
+cd frontend
+pnpm --filter dashboard dev
+```
+
+Сборка кабинета:
+
+```bash
+cd frontend
+pnpm --filter dashboard build
 ```
 
 ## Документация
